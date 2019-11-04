@@ -1,0 +1,11 @@
+```sh
+tnscmd10g version -h <ip_address>
+tnscmd10g status -h <ip_address> 
+```
+
+We can also enumerate SIDs and users and check for default credentials with the
+following nmap scripts:
+```sh
+nmap --script=oracle-sid-brute  $IP
+nmap --script=oracle-brute  $IP
+```

@@ -1,0 +1,15 @@
+# TFTP uses UDP port 69 ad requires no authentication. Generally TFTP servers are
+# exploited by performing the following actions:
+# - obtaining files/content from the server
+# - overwrite data on the server
+# - execute code via an overflow exploit
+
+# We can run an nmap script against an available server to execute a dictionary
+# attack to guess file names on the server, metasploit has a similar brute-force
+# module.
+nmap -Pn -sU -p69 --script tftp-enum <target-ip>
+
+# Connect to a tftp target
+# We will have FTP like commands such as `put` and `get`.
+tftp <target-ip>
+

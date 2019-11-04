@@ -1,0 +1,10 @@
+---
+tags: [ tools ]
+---
+
+
+# Answer to all question "yes"
+apt install something | yes
+
+# Generate a file with a specific string
+

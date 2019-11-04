@@ -1,0 +1,52 @@
+# We can try to use a couple of clients here:
+# - smbmap (more advanced)
+# - smbclient
+
+# Enumerate an SMB Share
+smbmap -H <ip_address>
+
+# Enumerate an SMB share with a null session
+smbmap -H <ip_address> -u anonymous 
+
+Notice that sometimes although smbmap provides a lot of information may not be
+available, or for some reason we may want to double check so it is a good idea
+to be comfortable also with the classic smbclient.
+
+# Enumerate an SMB share wiwth a null session
+# -N for a null authentication
+# -L to list the available shares
+smbclient -N -L //<ip_address>
+
+# Connect to a share
+smbclient -N //<ip_address>/<share_name>
+
+
+# Check permissions inside SMB share
+# if this retuens the error `ACCESS_DENIED`, it means that the share is not
+# available and we have to try with another one.
+ls
+
+
+# Mount a share
+# Notice that the mounted files will have permissions which are not reliable
+# this happens since there is no easy mapping between linux and windows files
+mount -t cifs //<ip_address>/<share_name> /mnt
+
+# Mount C share (if permissions are good)
+smbmount //X.X.X.X/c$ /mnt/remote/ -o username=user,password=pass,rw
+
+# Check permission on share
+for i in ($ls); do echo $i; smbcacls -N //<ip_address>/<share_name> $i; done
+
+If we find a directory/file which has as ACL `Everyone ... FULL` it means that
+we can also write inside, and this can be useful for exploitation through SCF
+file exploitation (look the internal network exploitation part of this guide).
+
+
+Other reconnaissance techniques that can be used with SMB are:
+```sh
+nmblookup -A <ip_target>
+smbclient //MOUNT/share -I <ip_target> -N
+rpcclient -U "" <target>
+enum4linux <ip_target>
+```

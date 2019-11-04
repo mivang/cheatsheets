@@ -1,0 +1,46 @@
+We can enumerate SMTP through an nmap script:
+```sh
+nmap --script=smtp-commands,smtp-enum-users,smtp-vuln-cve2010-4344,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764 -p 25 <target-ip>
+```
+User enumeration:
+
+VRFY and EXPN method:
+```smtp
+telnet/nc <ip_address> <port> (default: 25)
+HELO x
+VRFY <user>
+or
+EXPN <user>
+```
+VRY accepts a username
+EXPN accepts a username or a mailing list name
+
+RCPT TO method:
+
+```smtp
+telnet/nc <ip_address> <port> (default: 25)
+HELO x
+MAIL FROM <user>
+RCPT TO <user>
+```
+[SMTP User Enum](http://pentestmonkey.net/tools/user-enumeration/smtp-user-enum)
+```sh
+smtp-user-enum.pl -M VRFY -U users.txt -t 10.0.0.1
+```
+```sh
+smtp-user-enum -U /usr/share/wordlists/names.txt -t $TARGET -m 150
+```
+
+`smtp_enum` Metasploit auxiliary module
+```sh
+use auxiliary/scanner/smtp/smtp_enum
+set RHOSTS <ip_smtp_server>
+set PORT 25
+set USER_FILE <path_to_user_file>
+run
+```
+If the request is accepted, the SMTP server responds with code 250, 251 or 252.
+
+250 user is valid
+251 typically means that email to that address is forwarded
+252 means that the server doesn't know wether the address is valid or not.

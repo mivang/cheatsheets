@@ -1,0 +1,14 @@
+Snmpenum can be used to enumerate SNMP MIBs and it's more user friendly than snmpwalk.
+
+usage: 
+```sh
+snmpenum <ip_address> <community_string> <config_file>
+# where config_file is a lit of possible MIBs to test.
+```
+
+Snmpset uses Set requests to change the value of writable SNMP variables of a managed device.
+
+example: 
+```sh
+snmpset -v 1 -c really-secret switch.example.com \ system.sysContact.0 s admin@example.com
+```

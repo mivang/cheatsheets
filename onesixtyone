@@ -1,0 +1,17 @@
+# Very fast SNMP enumeration tool that exploits the connectionless state of SNMP,
+# this is generally used to guess community strings.
+
+# Common Usage 
+onesixtyone [options] <host> <community>
+
+# Bruteforce community strings
+onesixtyone -c SecLists/Miscellaneous/wordlist-common-snmp-community-strings.txt <ip-address>
+OR 
+onesixtyone -c SecLists/Miscellaneous/snmp.txt <ip-address>
+
+# Bruteforce community strings by providing a list of IPs in a file
+onesixtyone -i snmp-ips.txt -c community.txt
+
+# The tool sends a request for system.sysDescr.0 value and it can provide
+# a concise description indicating the software and version used by
+# the device.

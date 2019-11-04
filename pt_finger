@@ -1,0 +1,8 @@
+# Although it may be rare nowadays to find this kind of service online, anyway it
+# may be useful to understand how to perform enumeration for this service.
+
+# Gather information 
+- use `finger-user-enum` script from github
+
+# Gather information about user at specific IP address
+finger <username>@<IP>

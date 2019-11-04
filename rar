@@ -1,0 +1,34 @@
+---
+tags: [ compression ]
+---
+
+# Create a rar archive
+rar a archive.rar file1 file2
+
+# Add a file to a rar archive
+rar u archive.rar file1.sql
+
+# List files inside an archive
+rar l archive.rar
+
+# Create an archive with a password
+rar a -p archive.rar
+
+# Extract an archive
+rar x tecmint.rar
+
+# We can perform similar things with unrar
+
+# To decompress a rar archive
+unrar e archive.rar
+
+# To decompress a rar archive to a specific directory
+unrar e archive.rar /home/
+
+# To list files inside an archive
+unrar l archive.rar
+
+# To check integrity of an archive
+unrar t archive.rar
+
+

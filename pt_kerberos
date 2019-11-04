@@ -1,0 +1,8 @@
+# We can enumrate users from a kerberos domain controller by doing:
+# We will need to supply a list of usernames to test, but since we are only
+# querying the DC and not authenticating it, this activity is generally 
+# not detected.
+nmap -p88 --script krb5-enum-users --script-args krb5-enum-users.realm="myforest.local",userdb=/opt/userlist.txt <DomainControllerIP>
+OR 
+nmap <DomainControllerIP> -p 88 --script krb5-enum-users --script-args krb5-enum-users.realm='myforest.local'
+

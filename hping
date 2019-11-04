@@ -1,0 +1,93 @@
+
+# Note that we can encounter the following flags:
+# - SA (syn/ack), this is the response for an open port generally
+# - RA (rst/ack), this is the response for a closed port generally
+
+
+# Check firewall rules with portquiz.net
+hping3 -z -t 1 -S portquiz.net -p <whatever_port>
+
+# To use ICMP (-1 mode) ping
+hping3 -1 example.com
+
+# To use ICMP (-1 mode) with type 17
+# triggers a remote system to respond with a list of its related subnets,
+hping -1 192.168.1.1 -C 17
+
+# To check which hosts on a LAN have ICMP disabled
+hping3 -1 192.168.1.x --rand-dest -I wlan0
+
+# Traceroute with ICMP
+hping3 -1 --traceroute -V www.example.com
+
+# Traceroute with UDP
+hping3 -2 4.2.2.1 -p ++44444 -T -n
+
+# Traceroute with TCP
+hping3 --traceroute -V -S -p 93 -s 5678 example.com
+
+# Traceroute with TCP and ctrl+z to increase TTL manually
+hping3 -z -t 1 -S google.com -p 80
+
+# Port scan with SYN
+hping3 -V -S -p 93 -s 5678 example.com
+
+# Port scan with TCP timestamp (some firewalls drop packets with no timestamp)
+hping3 -V -S -p 22 example.com --tcp-timestamp
+
+# Port scan mode with TCP
+hping3 -8 50-56 -S 8.8.8.8
+
+# Port scan with UDP
+hping3 -2 192.168.1.6 -p 56 -c 1
+
+# ACK scan
+# Results:
+# - the target is **down** if no reply is received
+# - the target is **alive** if a packet with RST flag set is received
+hping3 -c 1 -V -p 93 -s 5678 -A dominio.xyz
+
+# FIN scan
+# Results:
+# - the target port is **open** if no reply is received
+# - the target port is **closed** if an RST+ACK is received
+# Notice that Windows, Cisco, HP-UX and IRIX do not follow the RFC and
+# send RST to make FIN scan ineffective
+hping -c 1 -V -p 80 -s 5050 -F example.com
+
+
+# NULL scan
+# Results:
+# - the target port is **closed** if an RST is received 
+# - the target port is **open** or **filtered** if no reply is received
+hping3 -c 1 -V -p 93 -s 5678 -Y dominio.xyz
+
+
+# XMas scan
+# Results:
+# - the target port is **closed** if an RST is received
+# - the target port is **open** or **filtered** if no reply is received
+hping3 -F -P -U <ip address> -c <number of packets>
+
+
+# DoS Attack
+hping3 -S -P -U --flood -V --rand-source www.example.com
+
+
+# SYN Flood Attack
+hping3 -S --flood -V example.com
+
+# SYN Flood Attack with spoofing
+hping -S 192.168.1.1 -a 192.168.1.254 -p 22 --flood
+
+# Ping Flood Attack
+hping -1 <target_ip> --flood
+
+# Smurf Attack
+hping3 -1 --flood -a VICTIM_IP BROADCAST_ADDRESS
+
+# Remote LAND Attack
+hping3 -A -S -P -U 66.66.66.66 -k -s 80 -p 80 -a 192.168.1.1 --flood
+
+# Ping of Death Attack
+TODO

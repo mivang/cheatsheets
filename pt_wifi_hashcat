@@ -1,0 +1,28 @@
+We may use hashcat to crack passwords faster by using available GPUs, but first
+we have to convert the `.cap` file to a file compatible with hashcat, and this
+can be done, either online or with hashcat-utils, by doing:
+
+```sh
+cap2hccapx capture.cap capturefile.hccapx
+```
+
+```sh
+hashcat -I 
+# this will show available platforms, be sure to have installed all required
+# dependencies such as opencl and so on
+```
+
+To check available formats we can do:
+```sh
+hashcat --help
+```
+
+From here we can see that WPA/WPA2 is the option "2500", so we can do:
+```sh
+hashcat -m 2500 -d 1 capturefile.hccapx wordlist.txt
+# with -m 2500 we choose to crack WPA/WPA2 hashes
+# with -d 1 we select the first device in the device list shown with
+# `hashcat -I`
+# capturefile.hccapx is the hasshcat compatible file with hashes
+# wordlist.txt is the wordlist file
+```

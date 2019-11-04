@@ -1,0 +1,41 @@
+﻿#To run dig (domain information groper)
+dig [domain]
+
+# To get all info about a domain
+dig +nocmd example.com any +multiline +noall +answer
+
+# Try DNS Zone Transfer
+dig axfr example.com @ns1.blah.com
+
+# Try to get other hostnames related to a domain by inspecting NSEC fields
+dig @ns3.isc-sns.info example.com +noall +answer | awk '{printf("%s %s\n",$5,$1);}' | grep -E '^(10\.)'
+OR with nmap
+nmap -sSU -p53 --script dns-nsec-enum --script-args dns-nsec-enum.domains=example.com ns3.isc-sns.info
+
+# To just get the ip address
+dig [domain] +nocomments +noauthority +noadditional +nostats 
+OR
+dig [domain] +noall +answer
+OR
+dig [domain] +short
+
+# To use a specific query type
+dig -t [query type] [domain] [options]
+OR
+dig [domain] [query type] [options]
+
+# To view ALL DNS record types use query ANY
+dig -t ANY [domain] [options]
+OR 
+dig [domain] ANY [options]
+
+# To do a DNS reverse look up
+dig -x [ip address] +short
+
+# To use a specific DNS server
+dig @[specific DNS] [domain]
+
+# To do a bulk DNS query (where file.txt has all the domains, one to a line)
+dig [domain1] [options] [domain2] [options] 
+OR
+dig -f file.txt [options]

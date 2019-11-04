@@ -1,0 +1,10 @@
+
+# We can perform some RPC Bind enumeration which resides generally on port 111 with:
+
+
+# Get Information with IP address
+rpcinfo -p IP
+OR 
+rcpclient -U "" IP
+O$
+enum4linux -a $IP
