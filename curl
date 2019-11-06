@@ -1,6 +1,33 @@
 # To download a file:
 curl <url>
 
+# To see all the HTTP headers in a request/response:
+curl -v 'http://example.com'
+
+# To make a GET request to a website
+curl -XGET 'http://example.com'
+
+# To make a POST request and send data in body
+curl -XPOST 'http://localhost:9200/_count?pretty' -d '{ "query": { "match_all": {} } }'
+
+# To make a POST request and send custom header
+curl -XPOST -H "Content-Type: application/json" -d '{ "query": { "match_all": {} } }'
+
+# To make a POST request by sending in body the content of a file
+curl -data '@<filename>' <url>
+
+# To perform a request by using a different DNS resolver
+curl --resolve "www.cnn.com:80:8.8.8.8" http://www.cnn.com
+
+# To make a POST request using a proxy on port 8080
+curl -x http://localhost:8080 -XPOST www.google.it -d "param1=ciao&param2=esempio"
+
+# To follow all possible redirections
+curl -L http://gnebbia.ml
+
+# To see http response with headers and body
+curl -i http://example.com
+
 # To download and rename a file:
 curl <url> -o <outfile>
 
@@ -15,6 +42,9 @@ curl -u <username>:<password> <url>
 
 # To download a file with a proxy:
 curl -x <proxy-host>:<port> <url>
+
+# To make a request behind a proxy
+curl --socks5 127.0.0.1:9050 http://checkip.amazonaws.com/
 
 # To download a file over FTP:
 curl -u <username>:<password> -O ftp://example.com/pub/file.zip
@@ -36,6 +66,13 @@ curl --limit-rate 1000B -O <outfile>
 
 # To get your global IP:
 curl httpbin.org/ip 
+OR
+curl ipinfo.io
+OR 
+curl ifconfig.me
+
+# To get info on an IP:
+curl ipinfo.io/<ip_address>
 
 # To get only the HTTP status code:
 curl -o /dev/null -w '%{http_code}\n' -s -I URL

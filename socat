@@ -1,8 +1,3 @@
----
-tags [ networking ]
----
-
-
 # To connect to http-server (port 80 on 'butzel.info')
 socat TCP4:butzel.info:80 -
 
@@ -11,7 +6,6 @@ socat openssl:butzel.info:443 -
 
 # To create a TCP-listener (port 3180), output as hexdump (-x) and fork for new connetions
 socat -x tcp-listen:3180,fork -
-
 
 # To redirect stdin from keybord to the specified address (-u = unidirectional)
 socat -u STDIO TCP4:127.0.0.1:9999

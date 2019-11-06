@@ -1,4 +1,3 @@
-
 # Note that we can encounter the following flags:
 # - SA (syn/ack), this is the response for an open port generally
 # - RA (rst/ack), this is the response for a closed port generally

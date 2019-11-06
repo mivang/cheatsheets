@@ -7,6 +7,9 @@ mget - get multiple files
 passive - enter passive transfer mode
 ls - list contents of remote directory
 
+# Download entire ftp directory
+wget -m --no-passive ftp://anonoymous:anonymous@1.1.1.1
+
 # Traditional ports, though they can be dynmically assigned
 Port 21 - control commands
 Port 20 - data transfer

@@ -1,8 +1,16 @@
+# Ivan
+- cewl (password)
+- crunch (password)
+- proxychains
+- package management ruby/python/perl/go/js
+- netdiscover
+- masscan
+
+# Giuseppe
 - john the ripper (jth)
 - hashcrack
 - powershell
 - bash (for, if, loops, string manip)
-- masscan
 - metasploit
 - smbscan
 - hping
@@ -21,7 +29,6 @@
 - powershell
 - transfer_file
 - nmap
-- netdiscover
 - pt_smb
 - pt_pop3
 - pt_imap
@@ -30,7 +37,6 @@
 - pt_mysql
 - ncat
 - nc
-- socat
 - proxychains
 - gdb
 - google [dork]
