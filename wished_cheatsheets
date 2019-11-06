@@ -1,0 +1,44 @@
+- john the ripper (jth)
+- hashcrack
+- powershell
+- bash (for, if, loops, string manip)
+- masscan
+- metasploit
+- smbscan
+- hping
+- rpc commands
+- tcpdump
+- ssh
+- ncrack
+- hydra
+- wfuzz
+- sqldump
+- nikto
+- responder
+- dig
+- wmi
+- traceroute
+- powershell
+- transfer_file
+- nmap
+- netdiscover
+- pt_smb
+- pt_pop3
+- pt_imap
+- pt_smtp
+- pt_nfs
+- pt_mysql
+- ncat
+- nc
+- socat
+- proxychains
+- gdb
+- google [dork]
+- shodan [dork]
+
+
+- ip
+- ifconfig
+- iw 
+- iptables
+- docker

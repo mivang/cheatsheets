@@ -1,0 +1,14 @@
+List of databases
+show dbs
+List of collections
+show collections
+Use specific database
+use <dbName>
+Add data to database
+db.<dbName>.insert({name:'ABC',role:'Admin',codes:[10,17 ,19]})
+
+    Find and print data
+
+ db.<dbName>.find()
+ db.<dbName>.find().pretty()
+

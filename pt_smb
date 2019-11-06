@@ -8,9 +8,9 @@ smbmap -H <ip_address>
 # Enumerate an SMB share with a null session
 smbmap -H <ip_address> -u anonymous 
 
-Notice that sometimes although smbmap provides a lot of information may not be
-available, or for some reason we may want to double check so it is a good idea
-to be comfortable also with the classic smbclient.
+# Notice that sometimes although smbmap provides a lot of information may not be
+# available, or for some reason we may want to double check so it is a good idea
+# to be comfortable also with the classic smbclient.
 
 # Enumerate an SMB share wiwth a null session
 # -N for a null authentication
@@ -43,10 +43,8 @@ we can also write inside, and this can be useful for exploitation through SCF
 file exploitation (look the internal network exploitation part of this guide).
 
 
-Other reconnaissance techniques that can be used with SMB are:
-```sh
+# Other reconnaissance techniques that can be used with SMB are:
 nmblookup -A <ip_target>
 smbclient //MOUNT/share -I <ip_target> -N
 rpcclient -U "" <target>
 enum4linux <ip_target>
-```

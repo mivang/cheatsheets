@@ -5,3 +5,12 @@ mysql-empty-password,mysql-enum,mysql-info,mysql-query,\
 mysql-users,mysql-variables,mysql-vuln-cve2012-2122
 
 
+
+Once inside we can try:
+# To load a custom file
+select LOAD_FILE('/etc/passwd');
+
+# To get Database credentials
+select * from mysql.user;
+
+

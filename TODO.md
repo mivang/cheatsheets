@@ -1,0 +1,4 @@
+- organizzarli directory o con tags
+- assicurarsi che tutti i cheatsheet in `wished_cheatsheets` siano stati fatti
+- cheat of common lists with paths
+- give a look at rtfm and btfm

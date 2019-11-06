@@ -1,8 +1,13 @@
 # To spider a site and write all found words to a file
+# the default depth is 2 and the url should be specified as
+# http://example.com or https://example.com
 cewl -w <file> <url>
 
-# To spider a site and follow links to other sites
-cewl -o <url>
+# To get all words with a minimum length is 6
+cewl -w <file> -m 6 <url>
+
+# To spider a site and follow links to sites on other domains
+cewl -o -w <file> <url>
 
 # To spider a site using a given user-agent 
 cewl -u <user-agent> <url>

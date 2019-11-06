@@ -9,3 +9,10 @@ following nmap scripts:
 nmap --script=oracle-sid-brute  $IP
 nmap --script=oracle-brute  $IP
 ```
+Typically you will be able to connect to Oracle as an unprivileged
+account such as SCOTT/TIGER
+
+After connecting you may want to:
+- Escalate privileges to become
+- With DBA privileges execute OS Code
+
