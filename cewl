@@ -1,28 +1,61 @@
-# To spider a site and write all found words to a file
-# the default depth is 2 and the url should be specified as
+---
+tags [password, scraping, list]
+---
+
+# Common flags list:
+# -v verbose
+# -d <x> depth to spider to, default is 2
+# -m minimum word length, default is 3
+# -o let the spider visit other sites
+# -w write the output to file
+#- -with-numbers accept words with numbers in as well as just letters
+# -a include meta data.
+# --meta_file output file for meta data
+# -e include email addresses
+# --email_file output file for email
+# -c show the count for each word found
+# --debug extra debug information
+
+
+# Scan a site and write all found words to a file
+# The default depth is 2 and the url should be specified as
 # http://example.com or https://example.com
 cewl -w <file> <url>
 
-# To get all words with a minimum length is 6
+# Get all words with a minimum length of 6
 cewl -w <file> -m 6 <url>
 
-# To spider a site and follow links to sites on other domains
+# Scan a site and follow links to sites on other domains
 cewl -o -w <file> <url>
 
-# To spider a site using a given user-agent 
+# Scan a site using a given user-agent 
 cewl -u <user-agent> <url>
 
-# To spider a site for a given depth and minimum word length
-cewl -d <depth> -m <min word length> <url>
+# Scan to a crawl depth of 3 with minimum word length of 8
+cewl -d 3 -m 8 -w foundwords.txt https://example.com
 
-# To get words that are at least 6 chars and going at maximum 1 level deep in crawling
-cewl http://example.com/ -d 1 -m 6 -w words.txt
+# Stealthy scan by using a spoofed USER-AGENT, default is "Ruby"
+# UA list: https://developers.whatismybrowser.com/useragents/explore/
+cewl -m 3 -u "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)" http://example.com
 
-# To spider a site and include a count for each word
+# Get all alphanumeric words with a minimum length of 8
+cewl -m 8 --with-numbers https://example.com
+
+# Scan a site and count each word found
 cewl -c <url>
 
-# To spider a site inluding meta data and separate the meta_data words
+# Scan a site inluding meta data and separate the meta_data words
 cewl -a -meta_file <file> <url>
 
-# To spider a site and store email adresses in a separate file
+# Scan a site and store email adresses in a separate file
 cewl -e -email_file <file> <url>
+
+# Scan for emails only, "-n" hides the words found
+cewl -e -n https://example.com
+
+# If an auth page is present, the list above might not work properly, see below
+# Try to bypass the auth by specifying username and password, encrypted auth
+cewl https://example.com/login.php --auth_type digest --auth_user admin --auth_pass password
+
+# Try to bypass the auth by specifying username and password, base64 auth
+cewl http://example.com/login.php --auth_type basic --auth_user admin --auth_pass password

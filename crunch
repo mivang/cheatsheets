@@ -1,0 +1,73 @@
+---
+tags [password, list]
+---
+
+# Common flags list:
+# @ is used as wildcard for
+# -b maximum size of the wordlist (requires -o START)
+# -d limit the number of duplicate characters
+# -f specify a list of character sets from the charset.lst file
+# -t set a specific pattern of special chars @,%^
+#    @ is used to insert lowercase chars
+#    , is used to insert uppercase chars
+#    % is used to insert numbers
+#    ^ is used to insert special chars
+# -l allow the literal interpretation of @,%^ when using -t
+# -o output wordlist file
+# -s specify a particular string to begin the wordlist with
+# -p print permutations without repeating chars (cannot be used with -s)
+# -q like -p except it reads the strings from a specified file
+
+
+
+# Create a wordlist with words of length min 4 and max 8, using ALL chars
+crunch 4 8
+
+# Create a wordlist with words of length min 6 and max 8, using numbers
+crunch 6 8 0123456789 -o numwordlist.txt
+
+# Create a wordlist with the specified lenghts, using the specified charset
+crunch 4 8 abcdef1234 -o wordlist.txt
+
+# Create a wordlist using a charset with special chars, "\" is used as escape
+crunch 2 4 \!\?\@
+
+# Create a wordlist that limit the same number of lowercase chars to 2
+crunch 4 4 -d 2@
+
+# Create a wordlist of 8 chars, using the specified charset from the list
+crunch 8 8 -f /usr/share/crunch/charset.lst mixalpha -o wordlist.txt
+
+# Create a wordlist with combinations of 12345 starting with "psw"
+crunch 8 8 12345 -t psw@@@@@ -o START
+
+# Create a wordlist with combinations of numbers starting with "psw"
+crunch 8 8 -t psw%%%%% -o START
+
+# Create wordlists of 1MB, using combinations of qwerty
+crunch 6 8 qwerty -b 1mib -o START
+
+# Create a wordlist using permutations (no duplicate chars) of given chars
+# The numbers 1 1 will not be considered but are necessary
+crunch 1 1 -p abc
+
+# Create a wordlist using permutations of given words
+# The numbers 1 1 will not be considered but are necessary
+crunch 1 1 -p best password ever
+
+# Create a wordlist with a specific pattern
+# -t ,%^ means the first char will be a uppercase, 2nd a number, 3rd special
+# You must specify the order, if a charset is not used then use "+"
+# The order is lowercase @ | uppercase , | number % | special ^
+# Here are also specified a reduced set of chars to be used
+crunch 3 3 + ABC 123 \!\@\# -t ,%^
+
+# Create a wordlist with specific pattern
+# With lowercase limit to 1, uppercase to 1, numbers to 1
+crunch 4 4 -t @@,% -d 1@ 1, 1%
+
+
+
+
+
+
