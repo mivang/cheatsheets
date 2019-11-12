@@ -149,3 +149,8 @@ git revert <commit SHA>
 # Pich a commit from a branch to current branch. This is different than merge as
 # this just applies a single commit from a branch to current branch
 git cherry-pick <commit SHA1>
+
+# To update a forked repository
+git remote add upstream git://github.com/ORIGINAL-DEV-USERNAME/REPO-YOU-FORKED-FROM.git
+git fetch upstream
+git pull upstream master
