@@ -83,4 +83,4 @@ ncrack --save cracking-session <[service-name]>://<target>:<[port-number]>
 v / V Increase / decrease the verbosity level
 d / D Increase / decrease the debugging Level
 p / P Display found credentials
-?  Print a runtime interaction help scree
+?  Print a runtime interaction help screen

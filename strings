@@ -1,0 +1,19 @@
+# Notice that depending on how strings is configured
+# it may read only the data section or the whole file
+# to be sure that we read the whole file use '-a', while
+# if we want to read only the data sections use '-d'
+# by default strings should be configured with '-a'
+
+
+# To view strings in a file
+strings ./file
+
+# To view strings in a file which are at least 6 chars
+strings -n 6 ./file
+
+# To view the offset at which strings are located
+# where 'x' means hex, but we can also choose
+# 'o' for octal and 'd' for decimal
+strings -t x ./file
+
+

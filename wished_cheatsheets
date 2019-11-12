@@ -17,7 +17,6 @@
 - rpc commands
 - tcpdump
 - ssh
-- ncrack
 - hydra
 - wfuzz
 - sqldump

@@ -1,8 +1,15 @@
 # Although it may be rare nowadays to find this kind of service online, anyway it
 # may be useful to understand how to perform enumeration for this service.
+#
+# Notice that finger-user-enum is the tool which will give us more information
+# about users
 
-# Gather information 
-- use `finger-user-enum` script from github
+
+# Gather information with finger-user-enum (github)
+./finger-user-enum.pl -U users.txt -t <IP> | less -S
 
 # Gather information about user at specific IP address
 finger <username>@<IP>
+
+# Gather information from metasploit 'finger_users'
+use auxiliary/scanner/finger/finger_users
