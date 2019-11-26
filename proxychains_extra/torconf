@@ -1,0 +1,73 @@
+# Chain type: dynamic, strict or random
+# All proxies chained in list order, skips dead ones
+dynamic_chain
+
+# All proxies chained in list order, stops if a dead one is found
+#strict_chain
+
+# Uses random proxies of the list, chain_len specifies how many
+#random_chain
+
+# Specifies how many random proxies are used 
+#chain_len = 2
+
+# Enables "quiet mode" and suppress output
+#quiet_mode
+
+# Proxy DNS requests, no leak for DNS data
+proxy_dns 
+
+# Set the class A subnet number to use for the internal remote DNS mapping.
+# If the proxified process does a DNS request, it will return an IP from that range.
+# On further accesses to this IP it will send the saved DNS name to the proxy.
+# The subnets below will return 127.x.x.x or 10.x.x.x or 224.x.x.x
+# DO NOT use the same subnet as localnet
+#remote_dns_subnet 127 
+#remote_dns_subnet 10
+#remote_dns_subnet 224
+
+# Timeouts in milliseconds
+tcp_read_time_out 15000
+tcp_connect_time_out 8000
+
+# By default enable localnet for loopback address ranges
+# RFC5735 Loopback Address Range
+localnet 127.0.0.0/255.0.0.0
+
+# RFC1918 Private Address Ranges
+# localnet 10.0.0.0/255.0.0.0
+# localnet 172.16.0.0/255.240.0.0
+# localnet 192.168.0.0/255.255.0.0
+
+
+# Example for localnet exclusion
+# Exclude connections to 192.168.1.0/24 with port 80
+# localnet 192.168.1.0:80/255.255.255.0
+
+# Exclude connections to 192.168.100.0/24
+# localnet 192.168.100.0/255.255.255.0
+
+# Exclude connections to ANYwhere with port 80
+# localnet 0.0.0.0:80/0.0.0.0
+
+# ProxyList format
+#       type  host  port [user pass]
+#       (values separated by 'tab' or 'blank')
+#
+#
+#        Examples:
+#
+#            	socks5	192.168.67.78	1080	lamer	secret
+#		http	192.168.89.3	8080	justu	hidden
+#	 	socks4	192.168.1.49	1080
+#	        http	192.168.39.93	8080	
+#		
+#
+#       proxy types: http, socks4, socks5
+#        ( auth types supported: "basic"-http  "user/pass"-socks )
+#
+
+[ProxyList]
+
+socks4 	127.0.0.1 9050
+

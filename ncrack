@@ -3,33 +3,38 @@ tags: [ tools ]
 ---
 
 # Common flags list: 
-# -v verbose
-# -vv very verbose
-# -u specifies a single user
-# -U specifies a list of users in a file 
-# --pass specifies a single password
-# -P specifies a list of password in a file 
-# -f stops after the first valid found credentials
-# -T [0~5] specifies how aggressive the bruteforce will be: 0 (paranoid bruteforce), 5 (insane bruteforce)
-#   modes 0 and 1 are used for IDS evasion
-# -d enables debugging, it is a more powerful verbose
-# -sL lists only hosts and services
-# -iL specifies a list of hosts 
-# -iX specifies as input the nmap output XML file obtained with nmap -oX
-# -iN specifies as input the nmap output normal file obtained with nmap -oN
-# -oA outputs the results of ncrack
+ -v verbose
+ -vv very verbose
+ -u specifies a single user
+ -U specifies a list of users in a file 
+ --pass specifies a single password
+ -P specifies a list of password in a file 
+ -f stops after the first valid found credentials
+ -T [0~5] specifies how aggressive the bruteforce will be: 0 (paranoid), 5 (insane) # 0 and 1 are for IDS evasion
+ -d enables debugging, it is a more powerful verbose
+ -sL lists only hosts and services
+ -iL specifies a list of hosts 
+ -iX specifies as input the nmap output XML file obtained with nmap -oX
+ -iN specifies as input the nmap output normal file obtained with nmap -oN
+ -oA outputs the results of ncrack
 
 # Search /ServicesTable/ in man page to list supported services
 
 # Common fine-tuning bruteforce options:
-# cl (min connection limit): minimum number of concurrent parallel connections
-# CL (max connection limit): maximum number of concurrent parallel connections
-# at (authentication tries): authentication attempts per connection
-# cd (connection delay): delay time between each connection initiation
-# cr (connection retries): caps number of service connection attempts
-# to (time-out): maximum cracking time for service, regardless of success so far
+ cl (min connection limit) - minimum number of concurrent parallel connections
+ CL (max connection limit) - maximum number of concurrent parallel connections
+ at (authentication tries) - authentication attempts per connection
+ cd (connection delay) - delay time between each connection initiation
+ cr (connection retries) - caps number of service connection attempts
+ to (time-out) - maximum cracking time for service, regardless of success so far
 
-
+# Common in-running commands
+ v increase verbosity level
+ V decrease verbosity level
+ d increase debugging level
+ D decrease debugging level
+ p / P display found credentials
+ ? print a runtime interaction help screen
 
 
 # Shows the ncrack version and supported modes
@@ -43,10 +48,10 @@ ncrack -f ftp://192.168.0.105
 # SSH bruteforce attempt on port 5910
 ncrack ssh://192.168.1.1:5910
 
-# To bruteorce multiple hosts/services
+# Bruteforce multiple hosts/services
 ncrack scanme.nmap.org:22 ftp://10.0.0.10 ssh://192.168.1.*:5910
 
-# Bruteforce attempt with password "admin123" and a users list
+# Bruteforce with password "admin123" and a users list
 ncrack -U users.txt --pass admin123 10.10.10.10:21
 
 # Bruteforce with users and passwords list. The XML is an nmap input, ncrack will follow it
@@ -64,10 +69,10 @@ ncrack -vv -U users.txt -P passwords.txt -iL host.txt -oA output_ncrack
 # Very verbose bruteforce with users and passwords list, max number of connections set to 1
 ncrack -vv -U users.txt -P rockyou.txt 192.168.56.10:3389,CL=1
 
-# Attempt to bruteforce all specified hosts and the subnet of 192.168.2.0/24 against SSH (22) FTP (3210) and Telnet (23)
+# Bruteforce all specified hosts and the subnet of 192.168.2.0/24 against SSH (22) FTP (3210) and Telnet (23)
 ncrack scanme.nmap.org 10.0.0.120-122 192.168.2.0/24 -p 22,ftp:3210,telnet
 
-# Attempt to bruteforce scanme.nmap.org on port 22, host 10.0.0.10 on FTP (21), 192.168.1.0/24 hosts on SSH (5910)
+# Bruteforce scanme.nmap.org on port 22, host 10.0.0.10 on FTP (21), 192.168.1.0/24 hosts on SSH (5910)
 ncrack scanme.nmap.org:22 ftp://10.0.0.10 ssh://192.168.1.*:5910
 
 # Bruteforce options, applied only to FTP service with "-m" flag
@@ -76,11 +81,6 @@ ncrack 193.168.0.105 -sL -d -m ftp:cl=10,CL=30,at=5,cd=2ms,cr=10,to=2ms
 # Restores an interrupted session
 ncrack --resume /home/user/.ncrack/restore.<datetime>
 
-# To explicitly set the filename of the session
+# Save session and set its filename
 ncrack --save cracking-session <[service-name]>://<target>:<[port-number]>
 
-# Commands in-running
-v / V Increase / decrease the verbosity level
-d / D Increase / decrease the debugging Level
-p / P Display found credentials
-?  Print a runtime interaction help screen

