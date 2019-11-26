@@ -1,0 +1,38 @@
+---
+tags: [proxy, pivoting]
+---
+
+# Config file can be found at 
+/etc/proxychains.conf
+
+# Proxyresolv is a script called by proxychains to resolve DNS names
+# Default server is 4.2.2.2
+# Can be modified by editing this file (path varies on every distro)
+/usr/lib/proxychains3/proxyresolv
+/usr/lib/proxyresolv
+/usr/bin/proxyresolv
+
+# A list of proxies can be found at
+# https://www.proxynova.com/
+# http://www.gatherproxy.com/sockslist
+
+# Sample config file if using Tor
+cheat proxychains_extra/torconf
+
+# Sample config file if not using Tor
+cheat proxychains_extra/sampleconf
+
+# Add “proxychains” before commands to enable its service.
+proxychains curl example.com
+
+# "-f" specify which .conf file will be used for proxychains
+# Works only for proxychain4 and above
+# When using nmap, use -Pn flag to avoid errors
+proxychains -f ~/sampleconf.conf nmap -sT -Pn example.com
+
+# Pivoting with SSH and Proxychains
+# Setup a tunnel on port 9000, then SSH to port 20022
+ssh -D mymachine:9000 -f -N -p 20022 user@ipaddr
+# In the .conf file mymachine IP and port 9000 must be put under [ProxyList]
+# socks4 x.x.x.x 9000
+
