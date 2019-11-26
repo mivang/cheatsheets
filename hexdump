@@ -1,0 +1,8 @@
+# To get hex of a file
+hexdump <file>
+
+# To get hex + ASCII of a file
+hexdump -C <file>
+
+# To get hex + ASCII of a file
+hexdump -C <file>

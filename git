@@ -154,3 +154,10 @@ git cherry-pick <commit SHA1>
 git remote add upstream git://github.com/ORIGINAL-DEV-USERNAME/REPO-YOU-FORKED-FROM.git
 git fetch upstream
 git pull upstream master
+
+# To download a pull request
+git fetch origin pull/<pull_request_ID>/head:BRANCHNAME
+git checkout BRANCHNAME
+;; do everything you have to do test/run/etc...
+git checkout master && git merge BRANCHNAME
+git branch --delete BRANCHNAME

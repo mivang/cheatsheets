@@ -1,7 +1,58 @@
-# To convert bin/string to hex:
-echo '42 is the solution' | xxd -p
+# Common flags:
+# -p  ;; prints hex only (instead of the complex output)
+# -ps ;; it is the same thing as -p
+# -r  ;; reverse mode, converts hex to ascii
+# -e  ;; print in little-endian order, by default with -p it just prints byte as they are (big-endian)
+# TODO: Research on endianness used by hexdump, xxd, od, objdump
+# objdump interprets by default as little-endian 
+# The traditional BSD hexdump utility uses the platform's endianness, so the
+# output you see means your machine is little-endian.
+
+# To get hexdump of a file
+xxd <filename>
+
+# To get hexdump of a file (only hex bytes)
+xxd -p <filename>
+
+# To convert file/string to hex:
+echo -n '42 is the solution' | xxd -p
 # output: 34322069732074686520736f6c7574696f6e0a
 
+# To convert file/string to hex (5 bytes per line)
+echo -n '42 is the solution' | xxd -p -c 5
+
 # To convert hex to bin/string:
-echo '34322069732074686520736f6c7574696f6e0a' | xxd -r -p
+echo -n '34322069732074686520736f6c7574696f6e0a' | xxd -p -r
 # output: 42 is the solution
+
+# To convert string to hex without newlines
+echo -n "Ciao" | xxd -p | tr -d '\n'
+
+# Get the hexdump of the first 120 bytes of a file 12 bytes per line
+xxd -l 120 -c 12 <filename>
+
+# Get the hexdump of the first 120 bytes after the address 0x30 of a file
+xxd -l 120 -s 0x30 <filename>
+
+# Get from byte 0x36 to 0x13 + 13 bytes showing only 13 bytes (chirurgic mode ;))
+xxd -s 0x36 -l 13 -c 13
+
+# Create a file with plenty of null bytes except the 200000 byte which will be 0x41
+echo "200000: 41" | xxd -r > <newfile>
+
+# Copy input_file to output_file and prepend 100 bytes of value 0x00.
+xxd input_file | xxd -r -s 100 > output_file
+
+# Separate with a space each 4 byte (also with 1 is useful)
+xxd -g 4 <file>
+
+
+# xxd as hex editor
+## Patch a byte in the file <filetomodify>
+## in this way we change the 0x00000036 byte with 0x35 in the file xxd.1
+echo "0000036: 35" | xxd -r - <filetomodify>
+
+## Check the modification
+xxd -s 0x36 -l 13 -c 13 <filetomodify>
+
+

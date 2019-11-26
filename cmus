@@ -1,0 +1,18 @@
+# Add directory to music library
+:add <directory>
+
+# Quit cmus
+q
+
+# Increase/Decrease Volume
++/-
+
+# Pause song
+c
+
+
+b player-next
+c player-pause
+x player-play
+z player-prev
+v player-stop

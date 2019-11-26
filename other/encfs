@@ -1,0 +1,9 @@
+# To create/mount an encrypted directory
+encfs ~/.encrypted ~/origin
+
+# To unmount an encrypted directory
+fusermount -u ~/name
+
+# To change the password
+encfsctl passwd ~/.name
+

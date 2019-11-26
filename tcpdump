@@ -1,12 +1,12 @@
 # TCPDump is a packet analyzer. It allows the user to intercept and display TCP/IP
-# and other packets being transmitted or received over a network. (cf Wikipedia).
+# and other packets being transmitted or received over a network
 # Note: 173.194.40.120 => google.com
 
-# Intercepts all packets on eth0
+# Intercept all packets on eth0
 tcpdump -i eth0
 
-# Intercepts all packets from/to 173.194.40.120
-tcpdump host 173.194.40.120
+# Intercept all packets from/to 173.194.40.120
+tcpdump -i eth0 host 173.194.40.120
 
 # Intercepts all packets on all interfaces from / to 173.194.40.120 port 80
 # -nn => Disables name resolution for IP addresses and port numbers.
@@ -28,16 +28,16 @@ tcpdump 'host ( 8.8.8.8 or 173.194.40.127 ) and port 80' -i any
 # Intercepts all packets SYN and FIN of each TCP session.
 tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0'
 
-# To display SYN and FIN packets of each TCP session to a host that is not on our network
+# Display SYN and FIN packets of each TCP session to a host that is not on our network
 tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0 and not src and dst net local_addr'
 
-# To display all IPv4 HTTP packets that come or arrive on port 80 and that contain only data (no SYN, FIN no, no packet containing an ACK)
+# Display all IPv4 HTTP packets that come or arrive on port 80 and that contain only data (no SYN, FIN, ACK)
 tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
 
-# Saving captured data
+# Save captured data
 tcpdump -w file.cap
 
-# Reading from capture file
+# Read from capture file
 tcpdump -r file.cap
 
 # Show content in hexa
@@ -62,69 +62,33 @@ tcpdump -X
 # - src net 67.207.148.0 mask 255.255.255.0
 # - src net 67.207.148.0/24
 
-## Trovare User Agents HTTP
-
-```sh
+## Find User-Agents
 tcpdump -vvAls0 | grep 'User-Agent:'
-```
 
 
-## Trovare richieste HTTP in cleartext
-
-```sh
+## Find specific HTTP requests
 tcpdump -vvAls0 | grep 'GET'
-```
 
-Possiamo anche cercare richieste POST attraverso lo stesso filtro
-e cambiando la stringa in 'POST'.
+## Find Hosts related to HTTP requests
+tcpdump -vvAls0 | grep 'Host:'
 
+## Find HTTP Cookies
+tcpdump -vvAls0 | grep 'Set-Cookie|Host:|Cookie:'
 
-## Trovare Header Host di richieste HTTP
-
-```sh
- tcpdump -vvAls0 | grep 'Host:'
-```
-
-
-## Trovare Cookies HTTP
-
-```sh
- tcpdump -vvAls0 | grep 'Set-Cookie|Host:|Cookie:'
-```
-
-
-## Trovare connessioni SSH
-
-```sh
+## Find SSH Connections
  tcpdump 'tcp[(tcp[12]>>2):4] = 0x5353482D'
-```
 
+## Show DNS Traffic
+tcpdump -vvAs0 port 53
 
-## Trovare Traffico DNS
+## Show FTP Traffic
+tcpdump -vvAs0 port ftp or ftp-data
 
-```sh
- tcpdump -vvAs0 port 53
-```
-
-
-## Trovare Traffico FTP
-
-```sh
- tcpdump -vvAs0 port ftp or ftp-data
-```
-
-
-## Trovare Traffico NTP
-
-```sh
+## Show NTP Traffic
 tcpdump -vvAs0 port 123
-```
 
-## Trovare Password in cleartext
-
-```sh
+## Find passwords sent as plain-text
 tcpdump port http or port ftp or port smtp or port imap or port pop3 or port telnet -lA | egrep -i -B5 \
 'pass=|pwd=|log=|login=|user=|username=|pw=|passw=|passwd= |password=|pass:|user:|username:|password:|login:|pass |user '
-```
 
 
